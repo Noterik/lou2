@@ -1,0 +1,16 @@
+<fsxml>
+	<binding id="1">
+		<properties>
+			<elements>body</elements>
+			<events>swipe drag dragstart dragend tap doubletap hold transform</events>
+			<function></function>
+		</properties>
+	</binding>
+	<binding id="2">
+		<properties>
+			<elements>.imgholder</elements>
+			<events>swipe drag dragstart dragend</events>
+			<function>components.gestureoverlay.putMsg</function>
+		</properties>
+	</binding>
+</fsxml>

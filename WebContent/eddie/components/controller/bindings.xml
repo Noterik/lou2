@@ -1,0 +1,9 @@
+<fsxml>
+	<binding id="1">
+		<properties>
+			<elements>.clickable</elements>
+			<events>tap</events>
+			<function>components.controller.putMsg</function>
+		</properties>
+	</binding>
+</fsxml>

@@ -1,0 +1,3 @@
+<table>
+{{#nodes}}<tr><td id="{{targetid}}_{{action}}" class="item_{{targetid}}">{{name}}</td></tr>{{/nodes}}
+</table>
