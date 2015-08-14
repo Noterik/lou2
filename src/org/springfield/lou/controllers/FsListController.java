@@ -29,6 +29,7 @@ public class FsListController extends Html5Controller {
 			if (node!=null) {
 				nodepath = node.getProperty("nodepath");
 				fields = node.getProperty("fields");
+				System.out.println("FIELDS="+fields);
 				template = node.getProperty("template");
 				
 				actionmenu = node.getProperty("actionmenu");
@@ -58,6 +59,7 @@ public class FsListController extends Html5Controller {
 		data.put("targetid",selector.substring(1));
 		//screen.get(selector).parsehtml(data);  // old way if you don't use update in js
 		screen.bind(selector,"client","itemselected",this);
+		System.out.println("PATH="+nodepath+" DATA="+data.toJSONString());
 		screen.get(selector).update(data);
 	}
 	
