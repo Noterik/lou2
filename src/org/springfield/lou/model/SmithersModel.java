@@ -67,7 +67,7 @@ public class SmithersModel {
 	
 	public FsNode getNode(String uri) {
 		if (uri.startsWith("/domain/")) {
-			
+			return Fs.getNode(uri);
 		} else if (uri.startsWith("/app/")) {
 			// memory app
 			String listurl = "/app"+app.getId().substring(7)+uri.substring(4);

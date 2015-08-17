@@ -255,6 +255,12 @@ public class Html5Element {
 		return true;
 	}
 	
+	public boolean append(String elementname,String elementid,Html5Controller c) {
+		html("<"+elementname+" id=\""+elementid+"\"></"+elementname+">");
+		screen.get("#"+elementid).attach(c);
+		return true;
+	}
+	
 	
 	public Object getVariable(String name) {
 		return variables.get(name);
