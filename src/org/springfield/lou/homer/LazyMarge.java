@@ -62,6 +62,7 @@ public class LazyMarge extends Thread {
 	
 	public static void addObserver(String url,MargeObserver o) {
 		observers.put(url, o);
+		System.out.println("ADDED OBSERVER IN LOU !!"+url+" FOR "+o+" COUNT="+observers.size());
 	}
 	
 	public static void addTimedObserver(String url,int counter,MargeObserver o) {

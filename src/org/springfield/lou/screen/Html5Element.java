@@ -39,6 +39,11 @@ public class Html5Element {
 		return true;
 	}
 	
+	public boolean draggable() {
+		screen.send("draggable("+selector+")");
+		return true;
+	}
+	
 	public boolean css(String elementname,String value) {
 		screen.setDiv(selector.substring(1),"style:"+elementname+":"+value);
 		return true;
@@ -231,6 +236,10 @@ public class Html5Element {
 		return true;
 	}
 	
+	public void track(String vars,String callbackmethod,Object callbackobject) {
+		screen.bind(selector,"track/"+vars,callbackmethod,callbackobject);
+	}
+	
 	public boolean on(String eventtype,Html5Controller c) {
 		controller = c;
 		controller.setScreen(screen);
@@ -278,6 +287,18 @@ public class Html5Element {
 			m.putNode("/app",view);
 		}
 		view.setProperty(name,value);
+	}
+	
+	public void setControllerProperty(String controllername,String name,String value) {
+		SmithersModel m = screen.getApplication().getModel();
+		FsNode controller  = m.getNode("/app/view/"+selector+"/controller/"+controllername);
+		
+		System.out.println("CONTROLLER NODE AAAAAA="+controller+" /app/view/"+selector+"/controller/"+controllername);
+		if (controller==null) {
+			controller = new FsNode("controller",controllername);
+			m.putNode("/app/view/"+selector,controller);
+		}
+		controller.setProperty(name,value);
 	}
 	
 	

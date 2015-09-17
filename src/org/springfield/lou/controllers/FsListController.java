@@ -59,24 +59,33 @@ public class FsListController extends Html5Controller {
 		data.put("targetid",selector.substring(1));
 		//screen.get(selector).parsehtml(data);  // old way if you don't use update in js
 		screen.bind(selector,"client","itemselected",this);
-		//System.out.println("PATH="+nodepath+" DATA="+data.toJSONString());
+		System.out.println("PATH="+nodepath+" DATA="+data.toJSONString());
 		screen.get(selector).update(data);
 	}
 	
     public void itemselected(Screen s,JSONObject data) {
 		if (actionmenu!=null && actionmenu.equals("true")) {
 			lastitem = (String)data.get("itemid");
-	       	screen.get(selector+"_actionmenu").attach(new FsActionMenuController()); 
-	       	screen.get(selector+"_actionmenu").show();
-	       	screen.bind(selector+"_actionmenu","actionselected","actionselected", this);
+	
+			// since we can't have app.xml classes yet we need to 'copy' some vars
+			System.out.println("SELECTtttt="+selector);
+			FsNode cnode = model.getNode("/app/view/"+selector+"_actionmenu/controller/FsActionMenuController");
+			System.out.println("CNODE="+cnode);
+			screen.get(selector+"_"+lastitem+"_actionmenu").setControllerProperty("FsActionMenuController","nodepath", cnode.getProperty("nodepath"));
+			screen.get(selector+"_"+lastitem+"_actionmenu").setControllerProperty("FsActionMenuController","mouseovercss", cnode.getProperty("mouseovercss"));
+
+			
+	       	screen.get(selector+"_"+lastitem+"_actionmenu").attach(new FsActionMenuController()); 
+	       	screen.get(selector+"_"+lastitem+"_actionmenu").show();
+	       	screen.bind(selector+"_"+lastitem+"_actionmenu","actionselected","actionselected", this);
 		} else {
-			//System.out.println("LISTEVENT="+this+" "+data.get("itemid")+" ET="+data.get("eventtype"));
+			System.out.println("LISTEVENT="+this+" "+data.get("itemid")+" ET="+data.get("eventtype"));
 			sendEvent(data);
 		}
     }
     
     public void actionselected(Screen s,JSONObject data) {
-    	screen.get(selector+"_actionmenu").hide();
+    	screen.get(selector+"_"+lastitem+"_actionmenu").hide();
     	// we need to rewire the event to be able to send the item id from the action menu
     	String action = (String)data.get("itemid");
     	data.put("itemid", lastitem);

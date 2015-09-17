@@ -149,7 +149,6 @@ public class Screen {
 	*/
 	
 	public void event(String from,String lookup,JSONObject data) {
-		
 		String methodname = callbackmethods.get(lookup);
 		if (methodname!=null) {
 			Object caller = callbackobjects.get(lookup);
@@ -788,6 +787,8 @@ public class Screen {
 				this.notify();
 			}
 		}
+		if (eventtype.startsWith("track/")) eventtype = "client";
+		
 	    callbackmethods.put(selector.substring(1)+"/"+eventtype, methodname); 
 	    callbackobjects.put(selector.substring(1)+"/"+eventtype, callbackobject); 
 	}
