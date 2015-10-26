@@ -54,6 +54,11 @@ public class Html5Element {
 		return true;
 	}
 	
+	public boolean append(String html) {
+		screen.send("append("+selector.substring(1)+")="+html);
+		return true;
+	}
+	
 	public void syncvars(String vars) {
 		// vars we want synced between client and server (one way for now)
 		JSONObject data = new JSONObject();
@@ -79,7 +84,6 @@ public class Html5Element {
 	
 	public boolean template(String template) {
 			// extend for the real path
-			System.out.println("C="+controller+" T="+template);
 		    if (template==null || template.equals("")) {
 		    	if (controller!=null) {
 		    		template = controller.getDefaultTemplate();
@@ -101,7 +105,7 @@ public class Html5Element {
 					 }
 					br.close();
 				} catch (FileNotFoundException e) {
-					System.out.println("COULD NOT FIND : "+template);
+					System.out.println("COULD NOT FIND TEMPLATE ("+selector+") : "+template);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -129,7 +133,12 @@ public class Html5Element {
 			String template = node.getProperty("template");
 			// extend for the real path
 			String part = screen.getApplication().getAppname().substring(screen.getApplication().getAppname().lastIndexOf("/")+1);
-			template = "/eddie/apps/"+part+"/components/"+template;	
+			
+		    if (template==null || template.equals("")) {
+	    		template = controller.getDefaultTemplate();
+		    } else {
+				template = "/springfield/tomcat/webapps/ROOT/eddie/apps/"+part+"/components/"+template;	
+		    }
 			if (template!=null && !template.equals("")) {
 				
 				
@@ -137,7 +146,7 @@ public class Html5Element {
 				try {
 					str = new StringBuffer();
 					BufferedReader br;
-					br = new BufferedReader(new FileReader("/springfield/tomcat/webapps/ROOT"+template));
+					br = new BufferedReader(new FileReader(template));
 					String line = br.readLine();
 					while (line != null) {
 						str.append(line);
@@ -146,12 +155,13 @@ public class Html5Element {
 					 }
 					br.close();
 				} catch (FileNotFoundException e) {
-					System.out.println("COULD NOT FIND : "+template);
+					System.out.println("COULD NOT FIND TEMPLATE ("+selector+") : "+template);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				json.put("template", str.toString());
 				screen.send("parsehtml("+selector.substring(1)+")="+json);
+				//System.out.println("TEMPLATE ("+selector+") : parsehtml("+selector.substring(1)+")="+json);
 				return true;
 			} else {
 				html("NO TEMPLATE IN VIEW NODE "+selector+" DEFINED");
@@ -265,7 +275,8 @@ public class Html5Element {
 	}
 	
 	public boolean append(String elementname,String elementid,Html5Controller c) {
-		html("<"+elementname+" id=\""+elementid+"\"></"+elementname+">");
+		//html("<"+elementname+" id=\""+elementid+"\"></"+elementname+">"); should be append !
+		append("<"+elementname+" id=\""+elementid+"\"></"+elementname+">");
 		screen.get("#"+elementid).attach(c);
 		return true;
 	}
@@ -293,7 +304,6 @@ public class Html5Element {
 		SmithersModel m = screen.getApplication().getModel();
 		FsNode controller  = m.getNode("/app/view/"+selector+"/controller/"+controllername);
 		
-		System.out.println("CONTROLLER NODE AAAAAA="+controller+" /app/view/"+selector+"/controller/"+controllername);
 		if (controller==null) {
 			controller = new FsNode("controller",controllername);
 			m.putNode("/app/view/"+selector,controller);

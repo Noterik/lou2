@@ -29,7 +29,6 @@ public class FsListController extends Html5Controller {
 			if (node!=null) {
 				nodepath = node.getProperty("nodepath");
 				fields = node.getProperty("fields");
-				System.out.println("FIELDS="+fields);
 				template = node.getProperty("template");
 				
 				actionmenu = node.getProperty("actionmenu");
@@ -59,7 +58,6 @@ public class FsListController extends Html5Controller {
 		data.put("targetid",selector.substring(1));
 		//screen.get(selector).parsehtml(data);  // old way if you don't use update in js
 		screen.bind(selector,"client","itemselected",this);
-		System.out.println("PATH="+nodepath+" DATA="+data.toJSONString());
 		screen.get(selector).update(data);
 	}
 	
@@ -68,9 +66,7 @@ public class FsListController extends Html5Controller {
 			lastitem = (String)data.get("itemid");
 	
 			// since we can't have app.xml classes yet we need to 'copy' some vars
-			System.out.println("SELECTtttt="+selector);
 			FsNode cnode = model.getNode("/app/view/"+selector+"_actionmenu/controller/FsActionMenuController");
-			System.out.println("CNODE="+cnode);
 			screen.get(selector+"_"+lastitem+"_actionmenu").setControllerProperty("FsActionMenuController","nodepath", cnode.getProperty("nodepath"));
 			screen.get(selector+"_"+lastitem+"_actionmenu").setControllerProperty("FsActionMenuController","mouseovercss", cnode.getProperty("mouseovercss"));
 
@@ -79,7 +75,6 @@ public class FsListController extends Html5Controller {
 	       	screen.get(selector+"_"+lastitem+"_actionmenu").show();
 	       	screen.bind(selector+"_"+lastitem+"_actionmenu","actionselected","actionselected", this);
 		} else {
-			System.out.println("LISTEVENT="+this+" "+data.get("itemid")+" ET="+data.get("eventtype"));
 			sendEvent(data);
 		}
     }

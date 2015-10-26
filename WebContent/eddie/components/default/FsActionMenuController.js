@@ -4,11 +4,11 @@ var FsActionMenuController = function(options) {}; // needed for detection
 FsActionMenuController.update = function(vars, data){
 
 	// get out targetid from our local vars
-	var tid = vars.get('targetid'); 
-	var mouseovercss = vars.get("controller/mouseovercss")
+	var tid = data["targetid"]; 
+	var mouseovercss = vars["controller/mouseovercss"];
 	
     // render the new html using mustache and the data from the server and show it
-	var parsed = Mustache.render(vars.get("template"),data);
+	var parsed = Mustache.render(vars["template"],data);
     $('#'+tid).html(parsed);
     
      // send the selected action to our server part

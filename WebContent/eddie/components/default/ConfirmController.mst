@@ -1,0 +1,2 @@
+{{question}}<br />
+<div id="confirm_left" class="link submitButton">{{answer1}}</div> <div id="confirm_right" class="link submitButton">{{answer2}}</div>

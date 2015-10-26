@@ -112,7 +112,6 @@ public class LouServlet extends HttpServlet {
 		response.addHeader("Access-Control-Allow-Methods","GET, POST, PUT, DELETE, OPTIONS");
 		response.addHeader("Access-Control-Allow-Headers", "Content-Type,Range,If-None-Match,Accept-Ranges");
 		response.addHeader("Access-Control-Expose-Headers", "Content-Range");
-		System.out.println("LOU2 METHOD="+request.getMethod()+" "+request.getRequestURI());
 		String mt = request.getContentType();
 		if (mt!=null && mt.indexOf("text/put")!=-1) { // need to check who made this and why (daniel)
 			doPut(request,response);
@@ -138,7 +137,6 @@ public class LouServlet extends HttpServlet {
 		// need to move to be faster
 		String params = request.getQueryString();
 		String hostname = request.getHeader("host");
-		System.out.println("TEST2");
 		String[] paths = urlMappingPerApplication(hostname,body);
 		
 		
@@ -166,21 +164,18 @@ public class LouServlet extends HttpServlet {
 			}
 			*/
 			params = triggerParams;
-			System.out.println("PARAMSSSS="+params);
 			
 		}
 		
-		System.out.println("NEW URL="+body);
 		
 		int pos = body.indexOf("/html5application/");
 		if (pos!=-1) {
 			pos = body.indexOf("/lou/domain/");
 			if (pos!=0) {
-				System.out.println("Fixed get="+body);
+//				System.out.println("Fixed get="+body);
 				body = body.substring(pos);
-				System.out.println("Fixed out="+body);
+	//			System.out.println("Fixed out="+body);
 			}
-			System.out.println("NEW URL2="+body);
 			doIndexRequest(body,request,response,params);
 		} else {
 			// should we report something back ?
@@ -209,7 +204,6 @@ public class LouServlet extends HttpServlet {
 				pos = user.indexOf("/");
 				user = user.substring(0,pos);
 			}
-			System.out.println("NEW URL3=");
 			pos = uri.indexOf("/html5application/");
 			if (pos!=-1) {
 				nameapp = uri.substring(pos+18);
@@ -226,7 +220,6 @@ public class LouServlet extends HttpServlet {
 				out.close();
 				return;
 			}
-			System.out.println("NEW URL4");
 			
 			//String body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
 			//body+="<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
@@ -259,7 +252,6 @@ public class LouServlet extends HttpServlet {
 					body+="<script language=\"javascript\" type=\"text/javascript\" src=\"/eddie/apps/"+l[i]+"\"></script>\n";
 				}
 			}
-			System.out.println("NEW URL5");
 			body+="<script language=\"javascript\" type=\"text/javascript\" src=\"/eddie/js/jquery-ui.js\"></script>\n";
 			body+="<script language=\"javascript\" type=\"text/javascript\" src=\"/eddie/js/jquery.ui.touch-punch.min.js\"></script>\n";
 			body+="<script language=\"javascript\" type=\"text/javascript\" src=\"/eddie/js/mustache.js\"></script>\n";
@@ -301,7 +293,6 @@ public class LouServlet extends HttpServlet {
 			System.out.println("Lou can't create index page");
 			e.printStackTrace();
 		}
-		System.out.println("NEW URL6");
 	}
 	
 	public String getLibPaths(String id) {
@@ -389,7 +380,7 @@ public class LouServlet extends HttpServlet {
 		
 		
 		if (data.indexOf("stop(")==0) {
-			System.out.println("RECIEVED STOP FROP CLIENT");
+			//System.out.println("RECIEVED STOP FROP CLIENT");
 			String screenid = data.substring(5,data.length()-1);
 			app.removeScreen(screenid,null);
 			return;
@@ -495,7 +486,6 @@ public class LouServlet extends HttpServlet {
 	}
 	
 	private String[] urlMappingPerApplication(String host,String inurl) {
-		System.out.println("HOST="+host+" URL="+inurl);
 		Iterator it = urlmappings.keySet().iterator();
 		while(it.hasNext()){
 			String mapurl = (String) it.next();
@@ -509,10 +499,8 @@ public class LouServlet extends HttpServlet {
 					return paths;
 				}
 			} else {
-				System.out.println("A1="+inurl+" A2="+mapurl);
 				if (inurl.equals(mapurl)) {
 					String[] paths = urlmappings.get(mapurl).split(",");
-					System.out.println("R="+paths);
 					return paths;
 				}
 			}

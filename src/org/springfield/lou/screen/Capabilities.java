@@ -89,7 +89,6 @@ public class Capabilities {
 	
 	public int getDeviceMode() {
 		String ua = getCapability("useragent");
-		System.out.println("UA="+ua);
 		int width = Integer.parseInt(getCapability("screenwidth"));
 		int height = Integer.parseInt(getCapability("screenheight"));
 		
@@ -111,7 +110,6 @@ public class Capabilities {
 					return MODE_IPAD_LANDSCAPE;	
 				}	
 			} else if (ua.indexOf("Android")!=-1) {
-				System.out.println("ANDROID DETECTED="+ua);
 				String o = getCapability("orientation");
 				//System.out.println("OOO="+o);
 				

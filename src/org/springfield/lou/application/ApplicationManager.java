@@ -139,7 +139,6 @@ public class ApplicationManager extends Thread implements MargeObserver {
     		if (name.indexOf("/dashboard")!=-1) {
     			app = loadDashboardApp(name);
     		}
-    		System.out.println("DAN_END="+app);
     		return app;
     }
     
@@ -877,7 +876,7 @@ public class ApplicationManager extends Thread implements MargeObserver {
 	}
 	
 	public void remoteSignal(String from,String method,String url) {
-		System.out.println("MULTICAST="+from+" "+method+" "+url);
+		//System.out.println("MULTICAST="+from+" "+method+" "+url);
 		if (!method.equals("PUT") || url.indexOf("/versions/")==-1) return;
 		
 		// first find out who has this app

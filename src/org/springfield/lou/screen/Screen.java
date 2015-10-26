@@ -156,7 +156,6 @@ public class Screen {
 				Method method = caller.getClass().getMethod(methodname,Screen.class,JSONObject.class);
 				if (method!=null) {
 					Screen s = app.getScreen(from);
-					//System.out.println("SEND EVENT="+caller+" S="+s+" data="+data);
 					method.invoke(caller,s,data);
 				} else {
 					System.out.println("MISSING METHOD IN APP ="+method);

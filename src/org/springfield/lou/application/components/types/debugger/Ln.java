@@ -48,7 +48,6 @@ public class Ln {
 		String postpath = currentpath+params[1];
 		if (Fs.isMainNode(postpath)) {
 			String newbody = "datatype=attributes&referid="+params[2];
-			//String result = LazyHomer.sendRequest("POST",postpath,newbody,"text/xml");
 			String result = smithers.post(postpath,newbody,"text/xml");
 			buffer.add("> ln(m) "+params[1]+" "+newbody);
 			System.out.println("RESULT="+result);
