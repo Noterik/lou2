@@ -10,7 +10,7 @@
 			Default Restlet
 		</display-name>
 		<servlet-name>ServerServlet</servlet-name>
-		<servlet-class>com.noelios.restlet.ext.servlet.ServerServlet</servlet-class>
+		<servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
@@ -24,7 +24,6 @@
 		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 	
-	
 	<servlet>
 	    <servlet-name>LouServlet</servlet-name>
 	    <servlet-class>org.springfield.lou.servlet.LouServlet</servlet-class>
@@ -36,6 +35,9 @@
 	    <url-pattern>/*</url-pattern>
 	</servlet-mapping> 
 	
+	<listener>
+    	<listener-class>org.springfield.lou.servlet.LouInitialListener</listener-class>
+  	</listener>	
 	
 	<mime-mapping>
     	<extension>vtt</extension>
