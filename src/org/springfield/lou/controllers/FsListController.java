@@ -1,5 +1,6 @@
 package org.springfield.lou.controllers;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 import org.json.simple.JSONArray;
@@ -14,6 +15,8 @@ public class FsListController extends Html5Controller {
 	private String template;
 	private String actionmenu;
 	private String lastitem;
+	private Object filterObject;
+	private String filterMethod;
 	
 	public FsListController() {
 	}
@@ -30,7 +33,6 @@ public class FsListController extends Html5Controller {
 				nodepath = node.getProperty("nodepath");
 				fields = node.getProperty("fields");
 				template = node.getProperty("template");
-				
 				actionmenu = node.getProperty("actionmenu");
 				model.observeTree(this,nodepath);
 				screen.get(selector).loadScript(this);
@@ -51,7 +53,8 @@ public class FsListController extends Html5Controller {
 	}
 	
 	private void fillList() {
-		FSList fslist = FSListManager.get(nodepath,false);
+		//FSList fslist = FSListManager.get(nodepath,false);
+		FSList fslist = getList(nodepath);
 		JSONObject data = fslist.toJSONObject(screen.getLanguageCode(),fields);
 		data.put("nodepath",nodepath);
 		data.put("size", fslist.size());
@@ -61,17 +64,50 @@ public class FsListController extends Html5Controller {
 		screen.get(selector).update(data);
 	}
 	
+	public FSList getList(String nodepath) {
+		FSList fslist = FSListManager.get(nodepath,false);
+		if (filterObject!=null) {
+			try {
+				Method method = filterObject.getClass().getMethod(filterMethod,FSList.class);
+				if (method!=null) {
+					Object r = method.invoke(filterObject,fslist);
+					fslist = (FSList)r;
+				} else {
+					System.out.println("MISSING METHOD IN FILTER CALL ="+method);
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return fslist;
+	}
+	
+	public void addFilter(Object caller,String method) {
+		filterObject = caller;
+		filterMethod = method;
+	}
+	
     public void itemselected(Screen s,JSONObject data) {
 		if (actionmenu!=null && actionmenu.equals("true")) {
-			lastitem = (String)data.get("itemid");
+			
+			try {
+				Double dd = Double.parseDouble((String)data.get("itemid"));
+				lastitem = (String)data.get("itemid");
+			} catch(Exception e) {
+				return;
+			}
+		
 	
 			// since we can't have app.xml classes yet we need to 'copy' some vars
+			
+			screen.removeContent(selector.substring(1)+"_"+lastitem+"_actionmenu");
+			
 			FsNode cnode = model.getNode("/app/view/"+selector+"_actionmenu/controller/FsActionMenuController");
 			screen.get(selector+"_"+lastitem+"_actionmenu").setControllerProperty("FsActionMenuController","nodepath", cnode.getProperty("nodepath"));
 			screen.get(selector+"_"+lastitem+"_actionmenu").setControllerProperty("FsActionMenuController","mouseovercss", cnode.getProperty("mouseovercss"));
 
-			
-	       	screen.get(selector+"_"+lastitem+"_actionmenu").attach(new FsActionMenuController()); 
+			screen.get(selector+"_"+lastitem).append("div class=\"actionmenu\"",selector.substring(1)+"_"+lastitem+"_actionmenu",new FsActionMenuController());
+	       	//screen.get(selector+"_"+lastitem+"_actionmenu").attach(new FsActionMenuController()); 
 	       	screen.get(selector+"_"+lastitem+"_actionmenu").show();
 	       	screen.bind(selector+"_"+lastitem+"_actionmenu","actionselected","actionselected", this);
 		} else {
@@ -81,6 +117,7 @@ public class FsListController extends Html5Controller {
     
     public void actionselected(Screen s,JSONObject data) {
     	screen.get(selector+"_"+lastitem+"_actionmenu").hide();
+		screen.removeContent(selector.substring(1)+"_"+lastitem+"_actionmenu"); // weird !
     	// we need to rewire the event to be able to send the item id from the action menu
     	String action = (String)data.get("itemid");
     	data.put("itemid", lastitem);

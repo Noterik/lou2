@@ -139,21 +139,18 @@ public class LouServlet extends HttpServlet {
 			}
 			
 			body = paths[0];
-			
-			/*=
+		
 			if (params!=null) {
-				params += "&actionlist="+paths[1];
 				if (triggerParams != null) {
 					params += "&"+triggerParams;
 				}
 			} else {
-				params = "actionlist="+paths[1];
 				if (triggerParams != null) {
-					params += "&"+triggerParams;
+					params = triggerParams;
 				}
 			}
-			*/
-			params = triggerParams;
+			
+			//params = triggerParams;
 			
 		}
 		
@@ -382,6 +379,7 @@ public class LouServlet extends HttpServlet {
 		try {
 			builder = factory.newDocumentBuilder();
 			InputSource is = new InputSource(new StringReader(data));
+		
 			Document doc = builder.parse(is);
 
 			//get the the user information from the xml
@@ -441,6 +439,7 @@ public class LouServlet extends HttpServlet {
 					
 					 // extend this with Location info 
 					caps.addCapability("ipnumber", request.getRemoteAddr());
+					caps.addCapability("servername", request.getServerName());
 					
 					Screen screen = app.getNewScreen(caps,params);
 					//System.out.println("PARAMSET="+params);

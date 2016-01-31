@@ -74,6 +74,8 @@ public class Screen {
     protected Map<String, String> callbackmethods = new HashMap<String, String>();
     protected Map<String, Object> callbackobjects = new HashMap<String, Object>();
     protected Map<String, ArrayList<String>> bindoverrides = new HashMap<String, ArrayList<String>>();
+    
+    protected Map<String, ArrayList<PropertyBindObject>> propertybindobjects = new HashMap<String, ArrayList<PropertyBindObject>>();
 	
 	/**
 	 * Constractor for Screen class
@@ -91,7 +93,9 @@ public class Screen {
 		// so some session recovery, only allow sessions per user !!!
 		if (a.getSessionRecovery()) {
 			String sid = caps.getCapability("smt_sessionid");
+
 			String appuser = a.getFullId();
+			System.out.println("A="+appuser+" "+sid);
 			pos = appuser.indexOf("/user/");
 			if (pos!=-1) {
 				appuser = appuser.substring(pos+6);
@@ -113,6 +117,7 @@ public class Screen {
 					String name =  iter.next();
 					String value = n2.getProperty(name);
 					if (value!=null) {
+						System.out.println("RECOVERY SET="+name+" value="+value);
 						setProperty(name, value); // put it back for now just String work !
 					}
 				}
@@ -196,6 +201,39 @@ public class Screen {
 			// ok we need to store this for now just works for Strings
 			Fs.setProperty(recoveryid, key, value.toString());
 		}
+		
+		ArrayList<PropertyBindObject> binds = propertybindobjects.get(key);
+		if (binds!=null) {
+			for (int i=0;i<binds.size();i++) {
+				PropertyBindObject bind  = binds.get(i);
+				String methodname = bind.method;
+				Object object = bind.object;
+				try {
+					Method method = object.getClass().getMethod(methodname,Screen.class,String.class,String.class);
+					if (method!=null) {
+						method.invoke(object,this,key,value);
+					} else {
+						System.out.println("MISSING METHOD IN APP ="+method);
+					}
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		// signal objects watching
+		/*
+		Object caller = callbackobjects.get(lookup);
+		try {
+			Method method = caller.getClass().getMethod(methodname,Screen.class,String.class);
+			if (method!=null) {
+				Screen s = app.getScreen(from);
+				method.invoke(caller,s,content);
+			} else {
+				System.out.println("MISSING METHOD IN APP ="+method);
+			}
+		*/
 	}
 	
 	public Object getProperty(String key){
@@ -965,4 +1003,20 @@ public class Screen {
 	public void observerController(Html5Controller c) {
 		controllers.add(c);
 	}
+	
+	
+	public void onPropertyUpdate(String properties,String methodname,Object callbackobject) {
+		String[] vars=properties.split(",");
+		for (int i=0;i<vars.length;i++) {
+			ArrayList<PropertyBindObject> list = propertybindobjects.get(vars[i]);
+			if (list!=null) {
+				list.add(new PropertyBindObject(methodname,callbackobject));
+			} else {
+				list = new ArrayList<PropertyBindObject>();
+				list.add(new PropertyBindObject(methodname,callbackobject));
+				propertybindobjects.put(vars[i], list);
+			}
+		}
+	}
+
 }

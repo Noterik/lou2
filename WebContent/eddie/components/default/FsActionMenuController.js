@@ -20,13 +20,15 @@ FsActionMenuController.update = function(vars, data){
    			var map = {};
    			map['itemid'] = item;
    			eddie.sendEvent(tid,"actionselected",map);
+   			$('#'+tid).remove();
+   			$('#'+tid).remove();
    		}
      });
     
     
      // hide the whole menu when we leave it with the mouse
      $('#'+tid).bind('mouseleave',function(event){
-        $('#'+tid).hide();
+        $('#'+tid).remove();
      });
     
     

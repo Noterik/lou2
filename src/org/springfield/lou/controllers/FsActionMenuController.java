@@ -41,6 +41,7 @@ public class FsActionMenuController extends Html5Controller {
 	}
 	
     public void actionselected(Screen s,JSONObject data) {
+		screen.removeContent(selector.substring(1));
 		sendEvent(data);
     }
 }

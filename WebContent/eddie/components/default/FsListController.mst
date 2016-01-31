@@ -2,4 +2,3 @@
 {{#nodes}}<tr><td id="{{targetid}}_{{id}}" class="item_{{targetid}}">{{title}}</td></tr>{{/nodes}}
 <tr><td>create new event</td></tr>
 </table>
-<div id="{{targetid}}_actionmenu" class="actionmenu"></div>
