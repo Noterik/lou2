@@ -23,6 +23,14 @@ FsListController.update = function(vars, data){
    			eddie.sendEvent(tid,"itemselected",map);
    		}
      });
+     
+     // add the mouseover class when in target area
+     $('#item_'+tid+'_addbutton').bind('mouseup',function(event){
+                var map = {};
+                eddie.sendEvent(tid,"itemadd",map);
+     });
+
+
     
     
     if (mouseovercss!=null) { 

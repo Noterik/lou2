@@ -61,6 +61,7 @@ public class FsListController extends Html5Controller {
 		data.put("targetid",selector.substring(1));
 		//screen.get(selector).parsehtml(data);  // old way if you don't use update in js
 		screen.bind(selector,"client","itemselected",this);
+		//screen.bind(selector,"client","itemadd",this);	
 		screen.get(selector).update(data);
 	}
 	
@@ -87,7 +88,17 @@ public class FsListController extends Html5Controller {
 		filterMethod = method;
 	}
 	
+    public void itemadd(Screen s,JSONObject data) {
+    	System.out.println("ITEM ADD PRESSED");
+		sendEvent(data);
+    }
+	
     public void itemselected(Screen s,JSONObject data) {
+    	String type = (String)data.get("eventtype"); // ugly hack needs to be fixed
+    	if (type.equals("itemadd")) {
+    		itemadd(s,data);
+    		return;
+    	}
 		if (actionmenu!=null && actionmenu.equals("true")) {
 			
 			try {

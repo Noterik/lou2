@@ -1,6 +1,8 @@
 package org.springfield.lou.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.simple.JSONObject;
 import org.springfield.marge.*;
@@ -21,6 +23,14 @@ public class Html5Controller implements MargeObserver {
 	
 	public Html5Controller() {
 		
+	}
+	
+	public String getScreenId() {
+		return screen.getId();
+	}
+	
+	public String getSelector() {
+		return selector;	
 	}
 	
 	public void setModel(SmithersModel m) {
@@ -119,6 +129,5 @@ public class Html5Controller implements MargeObserver {
 		 overridelist.add(eventtype);
 		screen.bindOverride(selector,overridelist);
 	 }
-	 
 	
 }

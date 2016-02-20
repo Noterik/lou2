@@ -21,6 +21,8 @@
 
 package org.springfield.lou.tools;
 
+import java.util.Date;
+
 /**
  * XMLHelper
  * 
@@ -39,7 +41,7 @@ public class XMLHelper {
 		String str="<fsxml>" +
 						"<screen>" +
 							"<properties>" +
-								"<screenid>" + id+ "</screenid>" +
+							"<screenid>" + id+ "</screenid>" + "<servertime>" + new Date().getTime()+ "</servertime>" +
 							"</properties>" +
 						"</screen>" +
 				  "</fsxml>";

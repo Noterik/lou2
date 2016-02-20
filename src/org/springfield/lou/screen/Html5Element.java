@@ -39,6 +39,12 @@ public class Html5Element {
 		return true;
 	}
 	
+	public boolean remove() {
+		// need to remove this element and all that its tracking/doing
+		screen.getApplication().removeEvents(controller);
+		return true;
+	}
+	
 	public boolean draggable() {
 		screen.send("draggable("+selector+")");
 		return true;
@@ -77,8 +83,6 @@ public class Html5Element {
 				data.put(items[i], controllernode.getProperty(key));
 			}
 		}
-		
-		//System.out.println("SYNCDATA="+data.toJSONString());
 		screen.send("syncvars("+selector.substring(1)+")="+data.toJSONString());
 	}
 	
@@ -309,6 +313,10 @@ public class Html5Element {
 			m.putNode("/app/view/"+selector,controller);
 		}
 		controller.setProperty(name,value);
+	}
+	
+	public Html5Controller getController() {
+		return controller;
 	}
 	
 	

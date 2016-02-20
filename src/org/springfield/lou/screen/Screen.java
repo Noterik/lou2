@@ -71,8 +71,9 @@ public class Screen {
 	private Map<String, Object> properties;
 	private Map<String,Html5Element> html5elements = new HashMap<String,Html5Element>();
 	private ArrayList<Html5Controller> controllers = new ArrayList<Html5Controller>();
-    protected Map<String, String> callbackmethods = new HashMap<String, String>();
-    protected Map<String, Object> callbackobjects = new HashMap<String, Object>();
+  //  protected Map<String, String> callbackmethods = new HashMap<String, String>();
+  //  protected Map<String, Object> callbackobjects = new HashMap<String, Object>();
+    private Map<String, HashMap<String,PathBindObject>> pathbindobjects = new HashMap<String, HashMap<String,PathBindObject>>();
     protected Map<String, ArrayList<String>> bindoverrides = new HashMap<String, ArrayList<String>>();
     
     protected Map<String, ArrayList<PropertyBindObject>> propertybindobjects = new HashMap<String, ArrayList<PropertyBindObject>>();
@@ -129,31 +130,40 @@ public class Screen {
 		setSeen();
 	}
 	
-	/*
-	public void event(String from,String content) { // old ?
-		int pos = content.indexOf(",");
-		String lookup = content.substring(0,pos);
-		content = content.substring(pos+1);
+	public void event(String from,String key,JSONObject data) {
+		HashMap<String,PathBindObject> binds = pathbindobjects.get(key);
 		
-		String methodname = callbackmethods.get(lookup);
-		if (methodname!=null) {
-			Object caller = callbackobjects.get(lookup);
-			try {
-				Method method = caller.getClass().getMethod(methodname,Screen.class,String.class);
-				if (method!=null) {
-					Screen s = app.getScreen(from);
-					method.invoke(caller,s,content);
-				} else {
-					System.out.println("MISSING METHOD IN APP ="+method);
+		Set<String> keys = binds.keySet();
+		Iterator<String> it = keys.iterator();
+		while(it.hasNext()){
+			String next = it.next();
+			PathBindObject bind = binds.get(next);
+			String methodname = bind.method;
+			// now find back the object on the screen based on its screenid and selector
+			Screen s=this.getApplication().getScreenManager().get(bind.screenid);
+			if (s!=null) {
+				Html5Element el = s.get(bind.selector);
+				if (el!=null) {
+					Object object = el.getController();
+					//System.out.println("methodname="+methodname+" object="+object+" selector="+bind.selector);
+					try {
+						Method method = object.getClass().getMethod(methodname,Screen.class,JSONObject.class);
+						//Method method = object.getClass().getMethod(methodname,String.class,FsNode.class);
+						if (method!=null) {	
+							//method.invoke(object,key,node);
+							Screen fs = app.getScreen(from);
+							method.invoke(object,fs,data);
+						} else {
+							System.out.println("MISSING METHOD IN APP ="+method);
+						}
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 				}
-			} catch(Exception e) {
-				e.printStackTrace();
 			}
-		}
-	}
-	*/
-	
-	public void event(String from,String lookup,JSONObject data) {
+		}	 
+
+		/*
 		String methodname = callbackmethods.get(lookup);
 		if (methodname!=null) {
 			Object caller = callbackobjects.get(lookup);
@@ -169,6 +179,7 @@ public class Screen {
 				e.printStackTrace();
 			}
 		}
+		*/
 	}
 
 	
@@ -221,19 +232,7 @@ public class Screen {
 			}
 		}
 		
-		
-		// signal objects watching
-		/*
-		Object caller = callbackobjects.get(lookup);
-		try {
-			Method method = caller.getClass().getMethod(methodname,Screen.class,String.class);
-			if (method!=null) {
-				Screen s = app.getScreen(from);
-				method.invoke(caller,s,content);
-			} else {
-				System.out.println("MISSING METHOD IN APP ="+method);
-			}
-		*/
+	
 	}
 	
 	public Object getProperty(String key){
@@ -326,6 +325,7 @@ public class Screen {
 		int pos = p.indexOf("bind:");
 		if (pos!=-1) {
 			String  name = t+"/"+p.substring(pos+5);
+			System.out.println("OSETDIV="+o);
 			app.setCallback(name,m,o);
 			setDiv(t,p);
 		}
@@ -825,9 +825,22 @@ public class Screen {
 			}
 		}
 		if (eventtype.startsWith("track/")) eventtype = "client";
-		
-	    callbackmethods.put(selector.substring(1)+"/"+eventtype, methodname); 
-	    callbackobjects.put(selector.substring(1)+"/"+eventtype, callbackobject); 
+
+		String screenid = ((Html5Controller)callbackobject).getScreenId();
+		String targetid = ((Html5Controller)callbackobject).getSelector();
+	   // System.out.println("BIND = "+screenid+" "+targetid+" "+methodname);
+		String mid = screenid+"/"+targetid+"/"+methodname;
+		HashMap<String,PathBindObject> list = pathbindobjects.get(selector.substring(1)+"/"+eventtype);
+		if (list!=null) {
+			// find the screen id and targetid
+			
+			// im i already watching ?, should the id include the methodname ?
+			list.put(mid,new PathBindObject(methodname,screenid,targetid));
+		} else {
+			list = new HashMap<String,PathBindObject>();
+			list.put(mid,new PathBindObject(methodname,screenid,targetid));
+			pathbindobjects.put(selector.substring(1)+"/"+eventtype, list);
+		}
 	}
 	
 	

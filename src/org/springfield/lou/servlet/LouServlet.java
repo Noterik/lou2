@@ -78,7 +78,7 @@ public class LouServlet extends HttpServlet {
     }
     
     public static void addUrlTrigger(String url,String actionlistname) {
-    		System.out.println("ADD TRIGGER="+url+" a="+actionlistname);
+    		//System.out.println("ADD TRIGGER="+url+" a="+actionlistname);
     		String parts[] = url.split(",");
     		urlmappings.put(parts[0],parts[1]+","+actionlistname);
     }
@@ -128,7 +128,7 @@ public class LouServlet extends HttpServlet {
 		String params = request.getQueryString();
 		String hostname = request.getHeader("host");
 		String[] paths = urlMappingPerApplication(hostname,body);
-		
+		//System.out.println("PATHS="+paths+" HOST="+hostname);
 		
 		if (paths!=null) {
 			//check if url trigger also contains params
@@ -153,7 +153,7 @@ public class LouServlet extends HttpServlet {
 			//params = triggerParams;
 			
 		}
-		
+		//System.out.println("BODYJUMPER="+body);
 		
 		int pos = body.indexOf("/html5application/");
 		if (pos!=-1) {
@@ -478,6 +478,7 @@ public class LouServlet extends HttpServlet {
 		Iterator it = urlmappings.keySet().iterator();
 		while(it.hasNext()){
 			String mapurl = (String) it.next();
+		//	System.out.println("MMM="+mapurl);
 			String lmapurl = mapurl;
 			int pos = mapurl.indexOf("@");
 			if (pos!=-1) {
@@ -488,6 +489,7 @@ public class LouServlet extends HttpServlet {
 					return paths;
 				}
 			} else {
+			//	System.out.println("I="+inurl+" M="+mapurl);
 				if (inurl.equals(mapurl)) {
 					String[] paths = urlmappings.get(mapurl).split(",");
 					return paths;

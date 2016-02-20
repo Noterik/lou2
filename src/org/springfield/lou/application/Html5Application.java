@@ -45,6 +45,7 @@ import org.springfield.lou.location.Location;
 import org.springfield.lou.location.LocationManager;
 import org.springfield.lou.model.SmithersModel;
 import org.springfield.lou.screen.Capabilities;
+import org.springfield.lou.screen.Html5Element;
 import org.springfield.lou.screen.Screen;
 import org.springfield.lou.screen.ScreenGroup;
 import org.springfield.lou.screen.ScreenManager;
@@ -95,6 +96,8 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
 	protected Map<String, String> actionlists = new HashMap<String, String>();
     protected Map<String, String> callbackmethods = new HashMap<String, String>();
     protected Map<String, Object> callbackobjects = new HashMap<String, Object>();
+    private Map<String, ArrayList<PathBindObject>> pathbindobjects = new HashMap<String, ArrayList<PathBindObject>>();
+	private Map<String, Object> properties = new HashMap<String, Object>();
     
     public Html5Application(String id, String remoteReciever) {
     	this.timeoutcheck = false;
@@ -263,66 +266,6 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
 	
 	public void executeActionlist(Screen s,String name) {
 		return;
-		//System.out.println("executeActionlist()");
-		//System.out.println(s);
-		//System.out.println(name);
-		/*
-		if (actionlistmanager.executeList(s, name)) {
-			// so we did call a list !
-		} else {
-			try {
-				// call class directly, to simulate a callServer
-				int pos = name.indexOf("(");
-				if (pos!=-1) {
-					String content = name.substring(pos+1,name.length()-1);
-					name = name.substring(0,pos);
-					//System.out.println("NAME="+name);
-					String methodname=dirToName(name);
-					Object caller = this;
-					
-					// are these 2 overridden ?
-					String overridemethodname = callbackmethods.get(name);
-					if (overridemethodname!=null) {
-						methodname = overridemethodname;
-						caller = callbackobjects.get(name);
-						//System.out.println("OVERRIDE2 ON="+name+" methodname="+methodname+" object="+caller);
-					}
-					
-					//System.out.println("MNAME="+methodname);
-					Method method = caller.getClass().getMethod(methodname,Screen.class,String.class);
-					if (method!=null) {
-						//System.out.println("DIRECT METHOD FOUND="+method);
-						method.invoke(caller,s,content);
-					} else {
-						System.out.println("MISSING METHOD IN APP ="+method);
-					}
-				} else {
-					//System.out.println("NAME2="+name);
-					String methodname=dirToName(name);
-					Object caller = this;
-					
-					// are these 2 overridden ?
-					String overridemethodname = callbackmethods.get(name);
-					if (overridemethodname!=null) {
-						methodname = overridemethodname;
-						caller = callbackobjects.get(name);
-						//System.out.println("OVERRIDE ON="+name+" methodname="+methodname+" object="+caller);
-					}
-					
-					//System.out.println("MNAME="+methodname);
-					Method method = caller.getClass().getMethod(methodname,Screen.class,String.class);
-					if (method!=null) {
-						//System.out.println("DIRECT METHOD FOUND="+method);
-						method.invoke(caller,s);
-					} else {
-						System.out.println("MISSING METHOD IN APP ="+method);
-					}
-				}
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-		}
-		*/
 	}
 	
 	public UserManager getUserManager(){
@@ -988,7 +931,7 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
     
     public Boolean externalGainEvent(HttpServletRequest request,String data) {
     	System.out.println("Error: Incoming gain event on : "+id+" not handled by app");
-    	System.out.println("DATA="+data);
+    	//System.out.println("DATA="+data);
     	return false;
     }
     
@@ -1007,6 +950,74 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
     public Html5Controller createController(String name) {
     	System.out.println("PLACE createController node in your app");
     	return null;
+    }
+    
+ 	public void onPathUpdate(String paths,String methodname,Html5Controller callbackobject) {
+		String screenid = callbackobject.getScreenId();
+		String targetid = callbackobject.getSelector();
+		String[] vars=paths.split(",");
+		for (int i=0;i<vars.length;i++) {
+			ArrayList<PathBindObject> list = pathbindobjects.get(vars[i]);
+			if (list!=null) {
+				// find the screen id and targetid
+				list.add(new PathBindObject(methodname,screenid,targetid));
+			} else {
+				list = new ArrayList<PathBindObject>();
+				list.add(new PathBindObject(methodname,screenid,targetid));
+				pathbindobjects.put(vars[i], list);
+			}
+		}
+	}
+ 	
+    public void setProperty(String path,String value) {
+   	 properties.put(path,value);
+   	 
+   	 //     //results/guest1212/clientXY  	
+   	String[] parts = path.split("/"); 
+   	String key = parts[1];
+   	String nodeid = parts[2];
+   	String propertyname = parts[3];
+   	
+   	FsNode node = new FsNode(key,nodeid);
+   	node.setProperty(propertyname, value);
+   	
+   	key = "/"+key+"/";
+		ArrayList<PathBindObject> binds = pathbindobjects.get(key);
+		if (binds!=null) {
+			for (int i=0;i<binds.size();i++) {
+				PathBindObject bind  = binds.get(i);
+				String methodname = bind.method;
+				// now find back the object on the screen based on its screenid and selector
+				Screen s=this.screenmanager.get(bind.screenid);
+				if (s!=null) {
+					Html5Element el = s.get(bind.selector);
+					if (el!=null) {
+						Object object = el.getController();
+						try {
+							Method method = object.getClass().getMethod(methodname,String.class,FsNode.class);
+							if (method!=null) {	
+								method.invoke(object,key,node);
+							} else {
+								System.out.println("MISSING METHOD IN APP ="+method);
+							}
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}	 
+    }
+    
+    public Object getProperty(String path) {
+		return properties.get(path);
+    }
+    
+    public void removeEvents(Object obj) {
+    	// remove all event callbacks this objects has
+    	
+    	// remove from path binds
+    	System.out.println("REMOVE PATH BINDS !!");
     }
 
 }
