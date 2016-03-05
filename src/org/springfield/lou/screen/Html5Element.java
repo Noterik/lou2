@@ -235,13 +235,17 @@ public class Html5Element {
 		return true;
 	}
 	
-	public boolean on(String eventtype,String callbackmethod) {
+	public boolean on(String eventtype,String callbackmethod) { // should this be removed and make the main app also a controller? (Daniel)
 		screen.bind(selector,eventtype,callbackmethod,screen.getApplication());
 		return true;
 	}
 	
 	public boolean on(String eventtype,String callbackmethod,Object callbackobject) {
-		screen.bind(selector,eventtype,callbackmethod,callbackobject);
+		return on(eventtype,"",callbackmethod,callbackobject);
+	}
+	
+	public boolean on(String eventtype,String eventpadding,String callbackmethod,Object callbackobject) {
+		screen.bind(selector,eventtype,eventpadding,callbackmethod,callbackobject);
 		return true;
 	}
 	

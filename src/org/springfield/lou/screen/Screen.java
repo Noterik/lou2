@@ -805,6 +805,10 @@ public class Screen {
 	}
 	
 	public void bind(String selector,String eventtype,String methodname,Object callbackobject) {
+		bind(selector,eventtype,"",methodname,callbackobject);
+	}
+	
+	public void bind(String selector,String eventtype,String eventpadding,String methodname,Object callbackobject) {
 		// is it overriden eventtype 
 		boolean override = false;
 		ArrayList o = bindoverrides.get(selector);
@@ -816,14 +820,23 @@ public class Screen {
 		
 		if (!eventtype.equals("client") && selector.indexOf("/controller/")==-1 && !override) {
 			if (data==null) {
-				data = "bind("+selector.substring(1)+")="+eventtype;
+				if (eventpadding.equals("")) {
+					data = "bind("+selector.substring(1)+")="+eventtype;
+				} else {
+					data = "bind("+selector.substring(1)+")="+eventtype+","+eventpadding;
+				}
 			} else {
-				data += "($end$)bind("+selector.substring(1)+")="+eventtype;
+				if (eventpadding.equals("")) {
+					data += "($end$)bind("+selector.substring(1)+")="+eventtype;
+				} else {
+					data += "($end$)bind("+selector.substring(1)+")="+eventtype+","+eventpadding;
+				}
 			}
 			synchronized (this) {
 				this.notify();
 			}
 		}
+		
 		if (eventtype.startsWith("track/")) eventtype = "client";
 
 		String screenid = ((Html5Controller)callbackobject).getScreenId();
