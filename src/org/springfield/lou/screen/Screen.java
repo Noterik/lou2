@@ -416,6 +416,41 @@ public class Screen {
 		return this.cm;
 	}
 	
+	public void loadStyleSheet(String style) {
+		String stylepath = app.getHtmlPath()+"components/"+style;
+
+		StringBuffer str = null;
+		try {
+			str = new StringBuffer();
+			BufferedReader br;
+			br = new BufferedReader(new FileReader(stylepath));
+			String line = br.readLine();
+			while (line != null) {
+				str.append(line);
+				str.append("\n");
+				line = br.readLine();
+			 }
+			br.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("COULD NOT FIND : "+stylepath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		String body = ""+ str.toString();
+		String stylename = stylepath.substring(stylepath.lastIndexOf("/")+1, stylepath.indexOf(".css"));
+		if(stylename.contains("_")) stylename = stylename.substring(0, stylename.indexOf("_"));
+		if (data==null) {
+			data = "setstyle(head)=" + stylename +"style,"+body;
+		} else {
+			data += "($end$)setstyle(head)="+ stylename +"style,"+body;
+		}
+		synchronized (this) {
+		    this.notify();
+		}
+	}
+	
+	
 	public void loadStyleSheet(String style, Html5ApplicationInterface app) {
 		//TODO: make this at least windows compatible or configurable
 		String stylepath ="/springfield/tomcat/webapps/ROOT/eddie/"+style;
