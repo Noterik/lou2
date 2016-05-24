@@ -71,6 +71,7 @@ public class Screen {
 	private Map<String, Object> properties;
 	private Map<String,Html5Element> html5elements = new HashMap<String,Html5Element>();
 	private ArrayList<Html5Controller> controllers = new ArrayList<Html5Controller>();
+	private ArrayList<String> csscache = new ArrayList<String>();
   //  protected Map<String, String> callbackmethods = new HashMap<String, String>();
   //  protected Map<String, Object> callbackobjects = new HashMap<String, Object>();
     private Map<String, HashMap<String,PathBindObject>> pathbindobjects = new HashMap<String, HashMap<String,PathBindObject>>();
@@ -414,6 +415,15 @@ public class Screen {
 	
 	public ComponentManager getComponentManager(){
 		return this.cm;
+	}
+	
+	public void loadStyleSheet(String style,Boolean allowcache) {
+		if (allowcache && csscache.contains(style)) {
+			System.out.println("cached css="+style+" "+allowcache);
+			return;
+		}	
+		loadStyleSheet(style);
+		if (!csscache.contains(style)) csscache.add(style);
 	}
 	
 	public void loadStyleSheet(String style) {
@@ -883,10 +893,10 @@ public class Screen {
 			// find the screen id and targetid
 			
 			// im i already watching ?, should the id include the methodname ?
-			list.put(mid,new PathBindObject(methodname,screenid,targetid));
+			list.put(mid,new PathBindObject(methodname,screenid,targetid,null,null));
 		} else {
 			list = new HashMap<String,PathBindObject>();
-			list.put(mid,new PathBindObject(methodname,screenid,targetid));
+			list.put(mid,new PathBindObject(methodname,screenid,targetid,null,null));
 			pathbindobjects.put(selector.substring(1)+"/"+eventtype, list);
 		}
 	}

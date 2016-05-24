@@ -44,6 +44,7 @@ import org.springfield.lou.homer.LazyHomer;
 import org.springfield.lou.location.Location;
 import org.springfield.lou.location.LocationManager;
 import org.springfield.lou.model.SmithersModel;
+import org.springfield.lou.screen.BindManager;
 import org.springfield.lou.screen.Capabilities;
 import org.springfield.lou.screen.Html5Element;
 import org.springfield.lou.screen.Screen;
@@ -98,6 +99,7 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
     protected Map<String, Object> callbackobjects = new HashMap<String, Object>();
     private Map<String, ArrayList<PathBindObject>> pathbindobjects = new HashMap<String, ArrayList<PathBindObject>>();
 	private Map<String, Object> properties = new HashMap<String, Object>();
+	private BindManager bindmanager;
     
     public Html5Application(String id, String remoteReciever) {
     	this.timeoutcheck = false;
@@ -115,6 +117,7 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
 		this.screencounter = 1;
 		this.screenmanager = new ScreenManager();
 		this.componentmanager = new ComponentManager();
+		this.bindmanager = new BindManager(this);
 		this.externalInterfaceId = ApplicationManager.instance().getEternalInterfaceNumber();
 		ApplicationManager.instance().addExternalInterface(externalInterfaceId, this);
 		//System.out.println("external id: " + externalInterfaceId);
@@ -692,6 +695,8 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
 			}
 		}
 		ScreenManager.globalremove(id);
+		bindmanager.onPathRemove(screen);
+		
 		Iterator<String> it = this.componentmanager.getComponents().keySet().iterator();
 		while(it.hasNext()){
 			this.componentmanager.getComponent((String)it.next()).getScreenManager().remove(id);
@@ -953,60 +958,16 @@ public class Html5Application implements Html5ApplicationInterface,Runnable {
     }
     
  	public void onPathUpdate(String paths,String methodname,Html5Controller callbackobject) {
-		String screenid = callbackobject.getScreenId();
-		String targetid = callbackobject.getSelector();
-		String[] vars=paths.split(",");
-		for (int i=0;i<vars.length;i++) {
-			ArrayList<PathBindObject> list = pathbindobjects.get(vars[i]);
-			if (list!=null) {
-				// find the screen id and targetid
-				list.add(new PathBindObject(methodname,screenid,targetid));
-			} else {
-				list = new ArrayList<PathBindObject>();
-				list.add(new PathBindObject(methodname,screenid,targetid));
-				pathbindobjects.put(vars[i], list);
-			}
-		}
+ 		bindmanager.onPathUpdate(paths, methodname, callbackobject);
 	}
  	
     public void setProperty(String path,String value) {
-   	 properties.put(path,value);
-   	 
-   	 //     //results/guest1212/clientXY  	
-   	String[] parts = path.split("/"); 
-   	String key = parts[1];
-   	String nodeid = parts[2];
-   	String propertyname = parts[3];
-   	
-   	FsNode node = new FsNode(key,nodeid);
-   	node.setProperty(propertyname, value);
-   	
-   	key = "/"+key+"/";
-		ArrayList<PathBindObject> binds = pathbindobjects.get(key);
-		if (binds!=null) {
-			for (int i=0;i<binds.size();i++) {
-				PathBindObject bind  = binds.get(i);
-				String methodname = bind.method;
-				// now find back the object on the screen based on its screenid and selector
-				Screen s=this.screenmanager.get(bind.screenid);
-				if (s!=null) {
-					Html5Element el = s.get(bind.selector);
-					if (el!=null) {
-						Object object = el.getController();
-						try {
-							Method method = object.getClass().getMethod(methodname,String.class,FsNode.class);
-							if (method!=null) {	
-								method.invoke(object,key,node);
-							} else {
-								System.out.println("MISSING METHOD IN APP ="+method);
-							}
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}	 
+		long starttime = new Date().getTime();
+   	 	properties.put(path,value);
+   	 	bindmanager.setProperty(path, value); // signal the others
+   	 	
+		long endtime = new Date().getTime();
+		//System.out.println("SET APP PROPERTY TIME="+(endtime-starttime)+" P="+path+" V="+value);			
     }
     
     public Object getProperty(String path) {
