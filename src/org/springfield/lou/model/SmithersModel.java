@@ -32,8 +32,6 @@ public class SmithersModel {
 	}
 	
 	
-
-	
 	public boolean setProperty(String nodepath,String propertyname,String value) {
 		Fs.setProperty(nodepath,propertyname,value);
 		return true;

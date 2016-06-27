@@ -60,6 +60,19 @@ public class Html5Element {
 		return true;
 	}
 	
+	public boolean play() {
+		screen.send("play("+selector.substring(1)+")");
+		return true;
+	}
+
+	public boolean pause() {
+		screen.send("pause("+selector.substring(1)+")");
+		return true;
+	}
+	
+	
+	
+	
 	public boolean append(String html) {
 		screen.send("append("+selector.substring(1)+")="+html);
 		return true;

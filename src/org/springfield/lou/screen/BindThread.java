@@ -21,7 +21,7 @@ public class BindThread extends Thread {
 					this.wait(10*1000);
 				}
 			} catch(Exception e) {
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
 		}
 	}
